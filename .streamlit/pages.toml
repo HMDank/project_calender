@@ -1,0 +1,7 @@
+[[pages]]
+path = "main.py"
+name = "Back"
+
+[[pages]]
+path = "login.py"
+name = "Login"
