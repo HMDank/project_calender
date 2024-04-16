@@ -11,17 +11,24 @@ def create_calender_plot():
     dummy_df = pd.DataFrame({
         "ds": pd.date_range(dummy_start_date, dummy_end_date),
         "value": np.random.randint(low=0, high=30,
-    size=(pd.to_datetime(dummy_end_date) - pd.to_datetime(dummy_start_date)).days + 1,),
+        size=(pd.to_datetime(dummy_end_date) - pd.to_datetime(dummy_start_date)).days + 1,),
     })
 
     fig = calplot(dummy_df,
                   name='Busy People',
                   x="ds",
                   y="value",
-                  dark_theme=True,
                   gap=0,
                   month_lines_width=3,
                   month_lines_color='#FFFFFF',
                   years_as_columns=True,
-                  total_height=150)
+                  total_height=200)
+    fig.update_layout(
+        plot_bgcolor='#262730',
+        paper_bgcolor='#262730',
+    )
     return fig
+
+
+def create_progress_table():
+    return 0

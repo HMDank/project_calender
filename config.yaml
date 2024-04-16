@@ -1,0 +1,29 @@
+credentials:
+  usernames:
+    dank:
+      failed_login_attempts: 0 # Will be managed automatically
+      logged_in: False # Will be managed automatically
+      name: Dank
+      password: motconvit # Will be hashed automatically
+    moi:
+      failed_login_attempts: 0 # Will be managed automatically
+      logged_in: False # Will be managed automatically
+      name: Moi
+      password: xoerahaicaicanh # Will be hashed automatically
+    hint:
+      failed_login_attempts: 0 # Will be managed automatically
+      logged_in: False # Will be managed automatically
+      name: Hint
+      password: nokeurang # Will be hashed automatically
+    lam:
+      failed_login_attempts: 0 # Will be managed automatically
+      logged_in: False # Will be managed automatically
+      name: Lam
+      password: capcapcapcapcapcap # Will be hashed automatically
+cookie:
+  expiry_days: 30
+  key: some_signature_key # Must be string
+  name: some_cookie_name
+pre-authorized:
+  name:
+  - Dank
