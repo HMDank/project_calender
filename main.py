@@ -1,9 +1,9 @@
 import streamlit as st
-
 import pandas as pd
 import streamlit_authenticator as stauth
 from plot import create_calender_plot
 from st_pages import show_pages_from_config, hide_pages
+
 
 st.set_page_config(layout="wide",
                    page_title='Calendar',)
