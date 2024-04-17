@@ -4,7 +4,8 @@ import streamlit_authenticator as stauth
 from plot import create_calender_plot
 from st_pages import show_pages_from_config, hide_pages
 from datetime import datetime
-
+import yaml
+from yaml.loader import SafeLoader
 st.set_page_config(layout="wide",
                    page_title='Calendar',)
 hide_pages(["Back"])
