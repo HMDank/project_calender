@@ -3,7 +3,7 @@ import streamlit as st
 import streamlit_authenticator as stauth
 from plot import create_calender_plot
 from st_pages import show_pages_from_config, hide_pages
-
+    
 st.set_page_config(layout="wide",
                    page_title='Calendar',)
 hide_pages(["Back"])
@@ -17,9 +17,9 @@ with st.sidebar:
     st.metric('h', 'Hint', label_visibility="collapsed", delta='Free', delta_color='off')
     st.metric('l', 'Lam', label_visibility="collapsed", delta='Away', delta_color='inverse')
 
-st.subheader('Group Schedule', anchor=False)
+st.header('Group Schedule', anchor=False)
 
-st.subheader('Group Progress', anchor=False)
+st.header('Group Progress', anchor=False)
 
 plot = create_calender_plot()
 st.plotly_chart(plot, use_container_width=True)

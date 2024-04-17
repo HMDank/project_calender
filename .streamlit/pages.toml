@@ -5,3 +5,6 @@ name = "Back"
 [[pages]]
 path = "login.py"
 name = "Login"
+
+[[pages]]
+path = "test.py"
