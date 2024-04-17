@@ -1,10 +1,7 @@
 import streamlit as st
-<<<<<<< HEAD
 
-=======
 import pandas as pd
 import streamlit_authenticator as stauth
->>>>>>> d848ec557e1ff49d48903226e22f5e1d2cb90534
 from plot import create_calender_plot
 from st_pages import show_pages_from_config, hide_pages
 
