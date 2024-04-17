@@ -77,7 +77,10 @@ if st.session_state["authentication_status"]:
             create = st.form_submit_button(label="Create")
             pop = st.form_submit_button(label="Pop")
         if create and name and participants and deadline:
-            st.session_state['new_task'].append((name, 0, deadline, participants))
+            st.session_state['new_task'].append({'task': name,
+                                                 'progress': 0,
+                                                 'deadline': deadline,
+                                                 'participants': participants})
         if st.session_state['new_task'] and pop:
             st.session_state['new_task'].pop()
         if st.session_state['new_task']:
@@ -87,10 +90,13 @@ if st.session_state["authentication_status"]:
                 st.write(f"Participants: `{task_participants}`")
                 st.write(f"Deadline: `{task_deadline}`")
     if save_changes:
-        # st.session_state['busy_timeframe'] = []
-        # st.session_state['new_task'] = []
         with open('config.yaml', 'w') as file:
             yaml.dump(config, file)
+        with open('tasks.yaml', 'w') as task_file:
+            yaml.dump(st.session_state['new_task'], task_file, default_flow_style=False)
+        st.session_state['busy_timeframe'] = []
+        st.session_state['new_task'] = []
+
 elif st.session_state["authentication_status"] is False:
     st.error('Username/password is incorrect')
 elif st.session_state["authentication_status"] is None:

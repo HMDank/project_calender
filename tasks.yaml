@@ -1,16 +1,6 @@
-- task: Power BI 1
-  progress: 20
-  deadline: 2024-02-05
+- deadline: 2024-04-26
   participants:
-    - Thằng thứ 1
-    - Thằng thứ 2
-    - Thằng thứ 3
-    - Thằng thứ 4
-- task: Task 2
-  progress: 55
-  deadline: 2023-11-10
-  participants:
-    - Thằng thứ 5
-    - Thằng thứ 6
-    - Thằng thứ 7
-    - Thằng thứ 8
+  - Dank
+  - Hint
+  progress: 0
+  task: Dank

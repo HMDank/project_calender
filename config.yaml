@@ -9,7 +9,7 @@ credentials:
       logged_in: false
       name: Dank
       password: $2b$12$JNYpunP65fNJ.X1o4a3E6umKMCPHbjtFyOZQu7Wl.mkzYjF4utCOC
-      status: Free
+      status: Active
     hint:
       failed_login_attempts: 0
       logged_in: true
