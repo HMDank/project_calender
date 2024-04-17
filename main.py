@@ -1,5 +1,5 @@
 import streamlit as st
-
+import pandas as pd
 import streamlit_authenticator as stauth
 from plot import create_calender_plot
 from st_pages import show_pages_from_config, hide_pages
@@ -18,6 +18,36 @@ with st.sidebar:
     st.metric('l', 'Lam', label_visibility="collapsed", delta='Away', delta_color='inverse')
 
 st.header('Group Schedule', anchor=False)
+
+df = pd.DataFrame(
+    {
+        "task": ["Task 1", "Task 2", "Task 3","Task 4"],
+        "progress": [20, 55, 100, 8],
+        "participants":[
+            ["Thằng thứ 1", "Thằng thứ 2", "Thằng thứ 3", "Thằng thứ 4"],
+            ["Thằng thứ 5", "Thằng thứ 6", "Thằng thứ 7", "Thằng thứ 8"],
+            ["Thằng thứ 9", "Thằng thứ 10", "Thằng thứ 11", "Thằng thứ 12"],
+            ["Thằng thứ 13", "Thằng thứ 14", "Thằng thứ 15", "Thằng thứ 16"],
+        ],
+    }
+)
+st.dataframe(
+    df,
+    column_config={
+        "task": "Task",
+        "progress": st.column_config.ProgressColumn(
+            "Progress (%)",
+            min_value=0,
+            max_value=100,
+        ),
+        "participants": st.column_config.ListColumn(
+            "Participants"
+        )
+
+    },
+    use_container_width = True,
+    hide_index=True,
+)
 
 st.header('Group Progress', anchor=False)
 
