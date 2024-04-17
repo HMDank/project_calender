@@ -77,12 +77,12 @@ if st.session_state["authentication_status"]:
             create = st.form_submit_button(label="Create")
             pop = st.form_submit_button(label="Pop")
         if create and name and participants and deadline:
-            st.session_state['new_task'].append((name, participants, deadline))
+            st.session_state['new_task'].append((name, 0, deadline, participants))
         if st.session_state['new_task'] and pop:
             st.session_state['new_task'].pop()
         if st.session_state['new_task']:
             st.write("Task(s) created:")
-            for i, (task_name, task_participants, task_deadline) in enumerate(st.session_state['new_task']):
+            for i, (task_name, task_progress, task_participants, task_deadline) in enumerate(st.session_state['new_task']):
                 st.write(f"`{task_name}`")
                 st.write(f"Participants: `{task_participants}`")
                 st.write(f"Deadline: `{task_deadline}`")
