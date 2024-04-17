@@ -3,7 +3,8 @@ import pandas as pd
 import streamlit_authenticator as stauth
 from plot import create_calender_plot
 from st_pages import show_pages_from_config, hide_pages
-    
+from datetime import datetime
+
 st.set_page_config(layout="wide",
                    page_title='Calendar',)
 hide_pages(["Back"])
@@ -21,7 +22,7 @@ st.header('Group Schedule', anchor=False)
 
 df = pd.DataFrame(
     {
-        "task": ["Task 1", "Task 2", "Task 3","Task 4"],
+        "task": ["Power BI 1", "Task 2", "Task 3","Task 4"],
         "progress": [20, 55, 100, 8],
         "participants":[
             ["Thằng thứ 1", "Thằng thứ 2", "Thằng thứ 3", "Thằng thứ 4"],
@@ -29,6 +30,12 @@ df = pd.DataFrame(
             ["Thằng thứ 9", "Thằng thứ 10", "Thằng thứ 11", "Thằng thứ 12"],
             ["Thằng thứ 13", "Thằng thứ 14", "Thằng thứ 15", "Thằng thứ 16"],
         ],
+        "deadline":[
+            datetime(2024, 2, 5, 12, 30),
+            datetime(2023, 11, 10, 18, 0),
+            datetime(2024, 3, 11, 20, 10),
+            datetime(2023, 9, 12, 3, 0),
+        ]
     }
 )
 st.dataframe(
@@ -42,12 +49,20 @@ st.dataframe(
         ),
         "participants": st.column_config.ListColumn(
             "Participants"
-        )
+        ),
 
+        "deadline": st.column_config.DatetimeColumn(
+            "Deadline",
+            min_value=datetime(2023, 6, 1),
+            max_value=datetime(2025, 1, 1),
+            format="D MMM YYYY, h:mm a",
+            step=60,
+        ),
     },
     use_container_width = True,
     hide_index=True,
 )
+
 
 st.header('Group Progress', anchor=False)
 
