@@ -13,8 +13,6 @@ show_pages_from_config()
 with open('config.yaml') as file:
     config = yaml.load(file, Loader=SafeLoader)
 
-
-
 with st.sidebar:
     st.subheader('Group Status', anchor=False)
     for username, info in config['credentials']['usernames'].items():
@@ -25,7 +23,7 @@ with st.sidebar:
         else:
             st.metric('d', f"{info['name']}", label_visibility="collapsed", delta=f'{info["status"]}', delta_color='inverse')
 
-st.header('Group Progress', anchor=False)
+st.header('Ongoing Tasks', anchor=False)
 with open('tasks.yaml') as file:
     ongoing_tasks = yaml.load(file, Loader=SafeLoader)
 tasks = []
