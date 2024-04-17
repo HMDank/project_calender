@@ -48,7 +48,6 @@ if st.session_state["authentication_status"]:
                 start = st.date_input('Pick a starting date', min_value=datetime.now(), max_value=datetime(2024, 12, 31))
                 end = st.date_input('Pick an ending date', min_value=datetime.now(), max_value=datetime(2024, 12, 31))
             with col1b:
-
                 add = st.form_submit_button(label="Add")
                 pop = st.form_submit_button(label="Pop")
                 clear = st.form_submit_button(label="Clear")
@@ -67,6 +66,9 @@ if st.session_state["authentication_status"]:
             for i, (start_date, end_date) in enumerate(st.session_state['busy_timeframe']):
                 st.write(f"`{start_date} - {end_date}`")
     with col2:
+        with open('tasks.yaml', 'r') as file:
+            ongoing_tasks = yaml.safe_load(file)
+
         if 'new_task' not in st.session_state:
             st.session_state['new_task'] = []
         st.subheader('Create a new task', anchor=False)
@@ -80,20 +82,25 @@ if st.session_state["authentication_status"]:
             st.session_state['new_task'].append({'task': name,
                                                  'progress': 0,
                                                  'deadline': deadline,
-                                                 'participants': participants})
+                                                 'participants': participants,
+                                                 'completed': False})
         if st.session_state['new_task'] and pop:
             st.session_state['new_task'].pop()
         if st.session_state['new_task']:
             st.write("Task(s) created:")
-            for i, (task_name, task_progress, task_participants, task_deadline) in enumerate(st.session_state['new_task']):
-                st.write(f"`{task_name}`")
-                st.write(f"Participants: `{task_participants}`")
-                st.write(f"Deadline: `{task_deadline}`")
+            for i, task in enumerate(st.session_state['new_task']):
+                st.write(f"Task: `{task['task']}`")
+                st.write(f"Participants: `{task['participants']}`")
+                st.write(f"Deadline: `{task['deadline']}`")
     if save_changes:
         with open('config.yaml', 'w') as file:
             yaml.dump(config, file)
+        if ongoing_tasks:
+            ongoing_tasks.extend(st.session_state['new_task'])
+        else:
+            ongoing_tasks = st.session_state['new_task']
         with open('tasks.yaml', 'w') as task_file:
-            yaml.dump(st.session_state['new_task'], task_file, default_flow_style=False)
+            yaml.dump(ongoing_tasks, task_file, default_flow_style=False)
         st.session_state['busy_timeframe'] = []
         st.session_state['new_task'] = []
 

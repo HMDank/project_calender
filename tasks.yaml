@@ -1,6 +1,15 @@
-- deadline: 2024-04-26
+- completed: false
+  deadline: '2024-04-19'
+  participants:
+  - Lam
+  - Moi
+  progress: 0
+  task: Power BI
+- completed: false
+  deadline: '2024-04-19'
   participants:
   - Dank
+  - Lam
   - Hint
   progress: 0
-  task: Dank
+  task: Code calendar heatmap

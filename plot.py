@@ -10,7 +10,7 @@ def create_calender_plot():
     # column named value using amount of days as shape
     dummy_df = pd.DataFrame({
         "ds": pd.date_range(dummy_start_date, dummy_end_date),
-        "value": np.random.randint(low=0, high=2,
+        "value": np.random.randint(low=0, high=100,
         size=(pd.to_datetime(dummy_end_date) - pd.to_datetime(dummy_start_date)).days + 1,),
     })
 
@@ -18,7 +18,7 @@ def create_calender_plot():
                   name='Busy People',
                   x="ds",
                   y="value",
-                  gap=3,
+                  gap=0,
                   month_lines_width=3,
                   month_lines_color='#000000',
                   years_as_columns=True,

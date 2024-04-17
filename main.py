@@ -10,6 +10,9 @@ st.set_page_config(layout="wide",
                    page_title='Calendar',)
 hide_pages(["Back"])
 show_pages_from_config()
+
+
+
 with open('config.yaml') as file:
     config = yaml.load(file, Loader=SafeLoader)
 
@@ -30,44 +33,63 @@ tasks = []
 progress = []
 deadlines = []
 participants = []
-for entry in ongoing_tasks:
-    tasks.append(entry['task'])
-    progress.append(entry['progress'])
-    deadlines.append(datetime.strptime(str(entry['deadline']), '%Y-%m-%d'))
-    participants.append(entry['participants'])
+if ongoing_tasks:
+    for entry in ongoing_tasks:
+        tasks.append(entry['task'])
+        progress.append(entry['progress'])
+        deadlines.append(datetime.strptime(str(entry['deadline']), '%Y-%m-%d'))
+        participants.append(entry['participants'])
 
 df = pd.DataFrame(
     {
         "task": tasks,
         "progress": progress,
         "deadline": deadlines,
-        "participants": participants
+        "participants": participants,
+        'completed': [False for _ in range(len(tasks))],
     }
 )
-st.dataframe(
-    df,
-    column_config={
-        "task": "Task",
-        "progress": st.column_config.ProgressColumn(
-            "Progress (%)",
-            min_value=0,
-            max_value=100,
-        ),
-        "participants": st.column_config.ListColumn(
-            "Participants"
-        ),
+if df is not None:
+    data = st.data_editor(
+        df,
+        column_config={
+            "task": "Task",
+            "progress": st.column_config.ProgressColumn(
+                "Progress (%)",
+                min_value=0,
+                max_value=100,
+            ),
+            "participants": st.column_config.ListColumn(
+                "Participants"
+            ),
 
-        "deadline": st.column_config.DatetimeColumn(
-            "Deadline",
-            format="D MMM YYYY",
-        ),
-    },
-    use_container_width=True,
-    hide_index=True,
-)
+            "deadline": st.column_config.Column(
+                "Deadline",
+            ),
+            'completed': st.column_config.Column(
+                'Completed',
+            )
+        },
+        use_container_width=True,
+        hide_index=True,
+    )
+
+new_data = data[data['completed'] == False]
+if new_data is not None:
+    updated_tasks = []
+    for index, row in new_data.iterrows():
+        task_dict = {
+            "task": row['task'],
+            "progress": row['progress'],
+            "deadline": row['deadline'].strftime('%Y-%m-%d'),  # Convert datetime back to string format
+            "participants": row['participants'],
+            "completed": row['completed']
+        }
+        updated_tasks.append(task_dict)
+with open('tasks.yaml', 'w') as task_file:
+    yaml.dump(updated_tasks, task_file, default_flow_style=False)
+
 
 st.header('Group Schedule', anchor=False)
-
-
 plot = create_calender_plot()
 st.plotly_chart(plot, use_container_width=True)
