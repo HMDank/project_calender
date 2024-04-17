@@ -12,22 +12,22 @@ credentials:
       status: Active
     hint:
       failed_login_attempts: 0
-      logged_in: false
+      logged_in: true
       name: Hint
       password: $2b$12$eRbrZ4vv43qVmpBM/Xldw.oHFctDRQSbByxyYjxICP96AD1QH5Zii
-      status: Free
+      status: Active
     lam:
       failed_login_attempts: 0
       logged_in: false
       name: Lam
       password: $2b$12$6wjMkgHClYEb2RJx2qd/3uiehVpLAWIOYSa5eWaX00tD4SgWyA5Pa
-      status: Free
+      status: Busy
     moi:
       failed_login_attempts: 0
       logged_in: false
       name: Moi
       password: $2b$12$/wbHt1NmYuASfwuoHEIv0O/XONXgQ2FXzzsuy5NJtKWH3qgkdXdce
-      status: Free
+      status: Active
 pre-authorized:
   name:
   - Dank
