@@ -1,7 +1,9 @@
 [[pages]]
 path = "main.py"
 name = "Back"
+icon = "⬅️"
 
 [[pages]]
 path = "login.py"
 name = "Login"
+icon = "🔒"
