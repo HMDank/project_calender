@@ -1,19 +1,14 @@
 from plotly_calplot import calplot
+import streamlit as st
 import numpy as np
 import pandas as pd
 import yaml
 from yaml.loader import SafeLoader
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 
 def create_calender_plot():
-    dummy_start_date = datetime(2024, 1, 1)
-    dummy_end_date = datetime(2024, 12, 31)
-
-    dummy_df = pd.DataFrame({
-        "ds": pd.date_range(dummy_start_date, dummy_end_date),
-        "value": 0
-    })
+    dummy_df = create_schedule_table(st.session_state['busy_timeframe'])
 
     fig = calplot(dummy_df,
                   name='Busy People',
@@ -36,7 +31,7 @@ def merge_overlapping_periods(periods):
     merged_periods = [sorted_periods[0]]
     for current_start, current_end in sorted_periods[1:]:
         last_merged_start, last_merged_end = merged_periods[-1]
-        if current_start <= last_merged_end:
+        if current_start <= (last_merged_end + timedelta(1)):
             new_start = min(last_merged_start, current_start)
             new_end = max(last_merged_end, current_end)
             merged_periods[-1] = (new_start, new_end)
@@ -45,34 +40,33 @@ def merge_overlapping_periods(periods):
     return merged_periods
 
 
-def create_progress_table(list):
+def create_schedule_table(list):
     # Arrange of calendar
-    Begining_date_of_calendar = datetime.date(2024, 1, 1)
-    Ending_date_of_calendar = datetime.date(2024, 12, 31)
-    size = (Ending_date_of_calendar - Begining_date_of_calendar).days+1
-    
+    Begining_date_of_calendar = date(2024, 1, 1)
+    Ending_date_of_calendar = date(2024, 12, 31)
+    size = (Ending_date_of_calendar - Begining_date_of_calendar).days + 1
+
     # Set a schedule array
     array = [0]*size
-    
+
     # Modify a schedule array
-    for each in list: 
+    for each in list:
         first_busy_date = each[0]
         last_busy_date = each[1]
-        
+
         start_index = (first_busy_date - Begining_date_of_calendar).days
         last_index = (last_busy_date - Begining_date_of_calendar).days + 1
-        
+
         for index in range(start_index, last_index):
-                array[index] = 1
-    
+            array[index] = 1
+
     # Make a DataFrame
     Begining_date_of_calendar = Begining_date_of_calendar.strftime('%Y-%m-%d')
     Ending_date_of_calendar = Ending_date_of_calendar.strftime('%Y-%m-%d')
-        
-    dummy_df = pd.DataFrame({
-    "ds": pd.date_range(Begining_date_of_calendar, Ending_date_of_calendar),
-    "value": array,
-})
-        
-    return(dummy_df)
+    df = pd.DataFrame({
+        "ds": pd.date_range(Begining_date_of_calendar, Ending_date_of_calendar),
+        "value": array,
+    })
+
+    return df
 
