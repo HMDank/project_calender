@@ -18,6 +18,7 @@ if busy:
         end_busy_day.append(entry['end_busy_day'])
         name.append(entry['name'])
 
+
 def create_calender_plot():
     dummy_start_date = datetime(2024, 1, 1)
     dummy_end_date = datetime(2024, 12, 31)

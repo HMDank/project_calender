@@ -48,7 +48,8 @@ if st.session_state["authentication_status"]:
                 if status and info['name'] == st.session_state['name']:
                     info['status'] = status
             save_changes = st.button('Save Changes', type='primary')
-            col1, col2 = st.columns(2)
+            authenticator.logout()
+        col1, col2 = st.columns(2)
         with col1:
             st.subheader('Busy days', anchor=False)
             with st.form('busy_days'):
@@ -66,51 +67,22 @@ if st.session_state["authentication_status"]:
                     if start > end:
                         st.error('Ending date is sooner than Starting Date')
                     else:
-                        names = []
-                    st.session_state['busy_timeframe'].append((start, end))
-                        st.session_state['busy'].append({'start_busy_day': start,
-                                                     'end_busy_day': end,
-                                                     'name': st.session_state['name']})
-            if st.session_state['busy_timeframe'] and pop:
-                    st.session_state['busy'].append({'start_busy_day': start,
-                                                 'end_busy_day': end,
-                                                 'name': st.session_state['name']})
-                st.session_state['busy_timeframe'].pop()
-                    with open('busy.yaml', 'r') as file:
-                    currrent_busy_days = yaml.safe_load(file)
-                if currrent_busy_days:
-                    currrent_busy_days = [x for x in currrent_busy_days if x not in st.session_state['busy']]
-                with open('busy.yaml', 'w') as busy_file:
-                    yaml.dump(currrent_busy_days, busy_file, default_flow_style=False)
-                st.session_state['busy'].pop()
-
-            if clear:
+                        st.session_state['busy_timeframe'].append((start, end))
+                if st.session_state['busy_timeframe'] and pop:
+                    st.session_state['busy_timeframe'].pop()
+                if clear:
                     st.session_state['busy_timeframe'] = []
-                    st.session_state['busy'] = []
-                with open('busy.yaml', 'r') as file:
-                    currrent_busy_days = yaml.safe_load(file)
-                if currrent_busy_days:
-                    currrent_busy_days.clear()
-                with open('busy.yaml', 'w') as busy_file:
-                    yaml.dump(currrent_busy_days, busy_file, default_flow_style=False)
-
-        if st.session_state['busy_timeframe']:
+            if st.session_state['busy_timeframe']:
                 st.session_state['busy_timeframe'] = merge_overlapping_periods(st.session_state['busy_timeframe'])
                 st.write("Recorded busy timeframes:")
                 for i, (start_date, end_date) in enumerate(st.session_state['busy_timeframe']):
                     st.write(f"`{start_date} - {end_date}`")
-        if st.session_state['busy']:
-            with open('busy.yaml', 'r') as file:
-                    currrent_busy_days = yaml.safe_load(file)
-            if currrent_busy_days:
-                for x in currrent_busy_days:
-                    if x not in st.session_state['busy']:
-                        currrent_busy_days.extend(st.session_state['busy'])
-            else:
-                currrent_busy_days = st.session_state['busy']
-            with open('busy.yaml', 'w') as busy_file:
-                yaml.dump(currrent_busy_days, busy_file, default_flow_style=False)
-            st.session_state['busy'].pop()
+    with tab2:
+        with open('tasks.yaml', 'r') as file:
+            ongoing_tasks = yaml.safe_load(file)
+
+        if 'new_task' not in st.session_state:
+            st.session_state['new_task'] = []
     with tab2:
         with open('tasks.yaml', 'r') as file:
             ongoing_tasks = yaml.safe_load(file)
@@ -156,8 +128,6 @@ if st.session_state["authentication_status"]:
         st.session_state['new_task'] = []
         with st.sidebar:
             st.success('Successfully saved changes!')
-
-    authenticator.logout()
 elif st.session_state["authentication_status"] is False:
     st.error('Username/password is incorrect')
 elif st.session_state["authentication_status"] is None:
