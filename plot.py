@@ -45,7 +45,34 @@ def merge_overlapping_periods(periods):
     return merged_periods
 
 
-def create_progress_table():
-    return 0
-
+def create_progress_table(list):
+    # Arrange of calendar
+    Begining_date_of_calendar = datetime.date(2024, 1, 1)
+    Ending_date_of_calendar = datetime.date(2024, 12, 31)
+    size = (Ending_date_of_calendar - Begining_date_of_calendar).days+1
+    
+    # Set a schedule array
+    array = [0]*size
+    
+    # Modify a schedule array
+    for each in list: 
+        first_busy_date = each[0]
+        last_busy_date = each[1]
+        
+        start_index = (first_busy_date - Begining_date_of_calendar).days
+        last_index = (last_busy_date - Begining_date_of_calendar).days + 1
+        
+        for index in range(start_index, last_index):
+                array[index] = 1
+    
+    # Make a DataFrame
+    Begining_date_of_calendar = Begining_date_of_calendar.strftime('%Y-%m-%d')
+    Ending_date_of_calendar = Ending_date_of_calendar.strftime('%Y-%m-%d')
+        
+    dummy_df = pd.DataFrame({
+    "ds": pd.date_range(Begining_date_of_calendar, Ending_date_of_calendar),
+    "value": array,
+})
+        
+    return(dummy_df)
 
