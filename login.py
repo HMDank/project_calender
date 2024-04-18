@@ -17,6 +17,8 @@ with open('config.yaml') as file:
     config = yaml.load(file, Loader=SafeLoader)
 with open('tasks.yaml', 'r') as file:
     ongoing_tasks = yaml.safe_load(file)
+with open('schedule.yaml', 'r') as file:
+    schedule = yaml.safe_load(file)
 
 authenticator = stauth.Authenticate(
     config['credentials'],
@@ -80,6 +82,9 @@ if st.session_state["authentication_status"]:
                     st.write("Recorded busy timeframes:")
                     for i, (start_date, end_date) in enumerate(st.session_state['busy_timeframe']):
                         st.write(f"`{start_date} - {end_date}`")
+            schedule[st.session_state['name']] = st.session_state['busy_timeframe']
+            with open('schedule.yaml', 'w') as file:
+                yaml.dump(schedule, file, default_flow_style=False)
             st.plotly_chart(create_calender_plot())
     with tab2:
         if 'new_task' not in st.session_state:
