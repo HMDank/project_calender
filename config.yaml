@@ -27,7 +27,7 @@ credentials:
       logged_in: false
       name: Moi
       password: $2b$12$FQz7MacnDmZZBjJACFQ0yeHygCmxz.8f.qM22d1atODDC2qgk03c2
-      status: Free
+      status: Busy
 pre-authorized:
   name:
   - Dank
