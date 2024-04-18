@@ -6,6 +6,7 @@ import pandas as pd
 import streamlit_authenticator as stauth
 from st_pages import show_pages_from_config, hide_pages
 from plot import merge_overlapping_periods
+from plot import create_calender_plot
 
 st.set_page_config(layout="wide",
                    page_title='Calendar',)
@@ -79,6 +80,7 @@ if st.session_state["authentication_status"]:
                     st.write("Recorded busy timeframes:")
                     for i, (start_date, end_date) in enumerate(st.session_state['busy_timeframe']):
                         st.write(f"`{start_date} - {end_date}`")
+            st.plotly_chart(create_calender_plot())
     with tab2:
         if 'new_task' not in st.session_state:
             st.session_state['new_task'] = []
@@ -96,10 +98,10 @@ if st.session_state["authentication_status"]:
                     pop = st.form_submit_button(label="Pop", use_container_width=True)
             if add and name and participants and deadline:
                 st.session_state['new_task'].append({'task': name,
-                                                    'progress': 0,
-                                                    'deadline': deadline,
-                                                    'participants': participants,
-                                                    'completed': False})
+                                                     'progress': 0,
+                                                     'deadline': deadline,
+                                                     'participants': participants,
+                                                     'completed': False})
             if st.session_state['new_task'] and pop:
                 st.session_state['new_task'].pop()
             if st.session_state['new_task']:
