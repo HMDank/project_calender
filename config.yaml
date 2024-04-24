@@ -9,25 +9,19 @@ credentials:
       logged_in: false
       name: Dank
       password: $2b$12$6BPq0nqWOYdyf97t8riPPO0BNzTpmIeURL9KWlqUglqNDL6gyU9je
-      status: Active
     hint:
       failed_login_attempts: 0
       logged_in: true
       name: Hint
       password: $2b$12$vIYvzB6v238XaaHeCpdXHOcs78DClFwIzqRUSZhh5xpLqCXSxOcWK
-      status: Active
     lam:
       failed_login_attempts: 0
       logged_in: true
       name: Lam
       password: $2b$12$dk2Kv2zET0RG.1SVwas79eDGLGeNdoS1sMVjS34GMK5j/rOkOWQsO
-      status: Active
     moi:
       failed_login_attempts: 0
       logged_in: false
       name: Moi
       password: $2b$12$FQz7MacnDmZZBjJACFQ0yeHygCmxz.8f.qM22d1atODDC2qgk03c2
-      status: Active
-pre-authorized:
-  name:
-  - Dank
+pre-authorized: null
