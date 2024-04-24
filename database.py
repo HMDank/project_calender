@@ -29,7 +29,7 @@ def update_user(user, status, schedule):
         {
             'name': user,
             'status': status,
-            'schedule': convert_date_to_string(schedule)
+            'schedule': schedule
             }
         )
     client.close()
