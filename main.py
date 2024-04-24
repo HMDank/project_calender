@@ -1,29 +1,32 @@
 import streamlit as st
 import pandas as pd
-import streamlit_authenticator as stauth
 from plot import create_calender_plot
+from database1 import create_database, edit_database
 from st_pages import show_pages_from_config, hide_pages
-from datetime import datetime
+from datetime import datetime, date
+import pymongo
 import yaml
 from yaml.loader import SafeLoader
+from database import retrieve_user_data, update_user
 st.set_page_config(layout="wide",
                    page_title='Calendar',)
 hide_pages(["Back"])
 show_pages_from_config()
 
-
 with open('config.yaml') as file:
     config = yaml.load(file, Loader=SafeLoader)
 
+users_data = retrieve_user_data([user_info["name"] for user_info in config['credentials']['usernames'].values()])
+
 with st.sidebar:
     st.subheader('Group Status', anchor=False)
-    for username, info in config['credentials']['usernames'].items():
-        if info['status'] == 'Free':
-            st.metric('d', f"{info['name']}", label_visibility="collapsed", delta=f'{info["status"]}', delta_color='off')
-        elif info['status'] == 'Active':
-            st.metric('d', f"{info['name']}", label_visibility="collapsed", delta=f'{info["status"]}', delta_color='normal')
+    for user_data in users_data:
+        if user_data[0]['status'] == 'Free':
+            st.metric('d', f"{user_data[0]['name'].capitalize()}", label_visibility="collapsed", delta=f"{user_data[0]['status']}", delta_color='off')
+        elif user_data[0]['status'] == 'Active':
+            st.metric('d', f"{user_data[0]['name'].capitalize()}", label_visibility="collapsed", delta=f"{user_data[0]['status']}", delta_color='normal')
         else:
-            st.metric('d', f"{info['name']}", label_visibility="collapsed", delta=f'{info["status"]}', delta_color='inverse')
+            st.metric('d', f"{user_data[0]['name'].capitalize()}", label_visibility="collapsed", delta=f"{user_data[0]['status']}", delta_color='inverse')
 
 st.header('Ongoing Tasks', anchor=False)
 with open('tasks.yaml') as file:
@@ -90,5 +93,3 @@ with open('tasks.yaml', 'w') as task_file:
 
 
 st.header('Group Schedule', anchor=False)
-plot = create_calender_plot()
-st.plotly_chart(plot, use_container_width=True)

@@ -6,7 +6,7 @@ import pandas as pd
 import streamlit_authenticator as stauth
 from st_pages import show_pages_from_config, hide_pages
 from plot import merge_overlapping_periods, create_calender_plot, convert_date_to_string
-
+from database import update_user, retrieve_user_data
 st.set_page_config(layout="wide",
                    page_title='Calendar',)
 hide_pages(["Login"])
@@ -14,10 +14,6 @@ show_pages_from_config()
 
 with open('config.yaml') as file:
     config = yaml.load(file, Loader=SafeLoader)
-with open('tasks.yaml', 'r') as file:
-    ongoing_tasks = yaml.safe_load(file)
-with open('schedule.yaml', 'r') as file:
-    schedule = yaml.safe_load(file)
 
 authenticator = stauth.Authenticate(
     config['credentials'],
@@ -27,29 +23,23 @@ authenticator = stauth.Authenticate(
     config['pre-authorized']
 )
 
-st.session_state['busy'] = []
-
+users_data = retrieve_user_data([user_info["name"] for user_info in config['credentials']['usernames'].values()])
+ongoing_tasks = []
 authenticator.login()
 if st.session_state["authentication_status"]:
     tab1, tab2 = st.tabs(['Schedule', 'Ongoing Tasks'])
     with tab1:
         with st.sidebar:
-            if 'status' not in st.session_state:
-                st.session_state['status'] = []
             names = []
-            for username, info in config['credentials']['usernames'].items():
-                names.append(info['name'])
-                if info['name'] == st.session_state['name']:
-                    if info['status'] == 'Free':
-                        st.metric('d', f"{st.session_state['name']}", label_visibility="collapsed", delta=f"{info['status']}", delta_color='off')
-                    elif info['status'] == 'Active':
-                        st.metric('d', f"{st.session_state['name']}", label_visibility="collapsed", delta=f"{info['status']}", delta_color='normal')
+            for user_data in users_data:
+                if st.session_state['name'] == user_data[0]['name']:
+                    if user_data[0]['status'] == 'Free':
+                        st.metric('d', f"{user_data[0]['name'].capitalize()}", label_visibility="collapsed", delta=f"{user_data[0]['status']}", delta_color='off')
+                    elif user_data[0]['status'] == 'Active':
+                        st.metric('d', f"{user_data[0]['name'].capitalize()}", label_visibility="collapsed", delta=f"{user_data[0]['status']}", delta_color='normal')
                     else:
-                        st.metric('d', f"{st.session_state['name']}", label_visibility="collapsed", delta=f"{info['status']}", delta_color='inverse')
-                    status = st.selectbox('Status:', ['Active', 'Free', 'Busy'], index=None, placeholder='Update Status', label_visibility='collapsed')
-                    if status and info['name'] == st.session_state['name']:
-                        info['status'] = status
-
+                        st.metric('d', f"{user_data[0]['name'].capitalize()}", label_visibility="collapsed", delta=f"{user_data[0]['status']}", delta_color='inverse')
+            status = st.selectbox('Status:', ['Active', 'Free', 'Busy'], index=None, placeholder='Update Status', label_visibility='collapsed')
             save_changes = st.button('Save Changes', type='primary')
             authenticator.logout()
         col1, col2 = st.columns(2)
@@ -149,22 +139,7 @@ if st.session_state["authentication_status"]:
     if save_changes:
         with open('config.yaml', 'w') as file:
             yaml.dump(config, file)
-        if ongoing_tasks:
-            updated_task = []
-            subset_lookup = {d['task']: d for d in st.session_state['change_task'] if 'task' in d}
-            for idx, d in enumerate(ongoing_tasks):
-                if 'task' in d and d['task'] in subset_lookup:
-                    ongoing_tasks[idx] = subset_lookup[d['task']]
-            ongoing_tasks.extend(st.session_state['new_task'])
-        else:
-            ongoing_tasks = st.session_state['new_task']
-        with open('tasks.yaml', 'w') as task_file:
-            yaml.dump(ongoing_tasks, task_file, default_flow_style=False)
-        # date_strings = convert_date_to_string(st.session_state['busy_timeframe'])
-        # user_name = st.session_state['name']
-        # schedule[user_name] = date_strings
-        # with open('schedule.yaml', 'w') as file:
-        #     yaml.dump(schedule, file, default_flow_style=False)
+        update_user(st.session_state['name'], status, st.session_state['busy_timeframe'])
         st.session_state['busy_timeframe'] = []
         st.session_state['new_task'] = []
         st.session_state['change_task'] = []
