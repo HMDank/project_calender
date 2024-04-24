@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 from plot import create_calender_plot
-from database1 import create_database, edit_database
 from st_pages import show_pages_from_config, hide_pages
 from datetime import datetime, date
 import pymongo
