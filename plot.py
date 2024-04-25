@@ -40,7 +40,7 @@ def merge_overlapping_periods(periods):
     return merged_periods
 
 
-def create_schedule_table(list):
+def create_schedule_table(schedule_list):
     # Arrange of calendar
     Begining_date_of_calendar = date(2024, 1, 1)
     Ending_date_of_calendar = date(2024, 12, 31)
@@ -50,15 +50,16 @@ def create_schedule_table(list):
     array = [0]*size
 
     # Modify a schedule array
-    for each in list:
-        first_busy_date = each[0]
-        last_busy_date = each[1]
+    for each in schedule_list:
+        if each:
+            first_busy_date = each[0]
+            last_busy_date = each[1]
 
-        start_index = (first_busy_date - Begining_date_of_calendar).days
-        last_index = (last_busy_date - Begining_date_of_calendar).days + 1
+            start_index = (first_busy_date - Begining_date_of_calendar).days
+            last_index = (last_busy_date - Begining_date_of_calendar).days + 1
 
-        for index in range(start_index, last_index):
-            array[index] = 1
+            for index in range(start_index, last_index):
+                array[index] = 1
 
     # Make a DataFrame
     Begining_date_of_calendar = Begining_date_of_calendar.strftime('%Y-%m-%d')
