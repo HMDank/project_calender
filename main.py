@@ -1,8 +1,8 @@
 import streamlit as st
 import pandas as pd
-from plot import create_calender_plot, create_dataframe
+from plot import create_calender_plot, create_dataframe, datetime_to_str
 from st_pages import show_pages_from_config, hide_pages
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 import pymongo
 import yaml
 from yaml.loader import SafeLoader
@@ -11,6 +11,25 @@ st.set_page_config(layout="wide",
                    page_title='Calendar',)
 hide_pages(["Back"])
 show_pages_from_config()
+
+
+def mask_df(df, date_range):
+    df.columns = pd.to_datetime(df.columns)
+    start_date = date_range[0]
+    end_date = date_range[1] if len(date_range) > 1 else date_range[0] + timedelta(days=10)
+    mask = (df.columns >= pd.Timestamp(start_date)) & (df.columns <= pd.Timestamp(end_date))
+    masked_df = df.loc[:, mask]
+    masked_df.columns = [col.date() for col in masked_df.columns]
+
+    def color_background(val):
+        if val == 'Busy':
+            return f'background-color: #e38686; font-weight: bold;'
+        if val == "Active":
+            return f'background-color: #9ee096; font-weight: bold;'
+
+    styled_df = masked_df.style.map(color_background)
+    return styled_df
+
 
 with open('config.yaml') as file:
     config = yaml.load(file, Loader=SafeLoader)
@@ -80,4 +99,8 @@ if deleted_data is not None:
     remove_task(deleted_data['name'].tolist())
 
 st.header('Group Schedule', anchor=False)
-st.dataframe(create_dataframe(users_data))
+column1, column2, column3 = st.columns(3)
+with column1:
+    date_range = st.date_input('Pick a range', (date.today(), date.today() + timedelta(days=10)), min_value=date.today(), max_value=date(2024, 12, 31), label_visibility='collapsed')
+schedule_df = create_dataframe(users_data)
+st.dataframe(mask_df(schedule_df, date_range))

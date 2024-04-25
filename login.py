@@ -52,13 +52,15 @@ if st.session_state["authentication_status"]:
                 if 'busy_timeframe' not in st.session_state:
                     st.session_state['busy_timeframe'] = []
                 range = st.date_input('Pick a busy range', (date.today(), date.today()), min_value=date.today(), max_value=date(2024, 12, 31))
-                col1a, col1b, col1c = st.columns(3)
+                col1a, col1b, col1c, col1d = st.columns(4)
                 with col1a:
                     add = st.form_submit_button(label="Add", use_container_width=True)
                 with col1b:
                     pop = st.form_submit_button(label="Pop", use_container_width=True)
                 with col1c:
                     clear = st.form_submit_button(label="Clear", use_container_width=True)
+                with col1d:
+                    reset = st.form_submit_button(label="Reset", use_container_width=True)
                 if range and add:
                     st.session_state['busy_timeframe'].append(range)
                     st.session_state['busy_timeframe'] = merge_overlapping_periods(st.session_state['busy_timeframe'])
@@ -66,13 +68,20 @@ if st.session_state["authentication_status"]:
                     st.session_state['busy_timeframe'].pop()
                 if clear:
                     st.session_state['busy_timeframe'] = []
+                if reset:
+                    for user_data in users_data:
+                        if st.session_state['name'] == user_data[0]['name']:
+                            update_user(user_data[0]['name'], original_status, [[]])
             if st.session_state['busy_timeframe']:
                 with col2:
                     st.write("Recorded busy timeframes:")
                     for i, (start_date, end_date) in enumerate(st.session_state['busy_timeframe']):
                         st.write(f"`{start_date} - {end_date}`")
         busy_timeframe = original_busy_timeframe + st.session_state['busy_timeframe'] if original_busy_timeframe[0] else st.session_state['busy_timeframe']
-        st.plotly_chart(create_calender_plot(merge_overlapping_periods(busy_timeframe)), use_container_width=True)
+        if busy_timeframe:
+            st.plotly_chart(create_calender_plot(merge_overlapping_periods(busy_timeframe)), use_container_width=True)
+        else:
+            st.plotly_chart(create_calender_plot(busy_timeframe), use_container_width=True)
     with tab2:
         if 'new_task' not in st.session_state:
             st.session_state['new_task'] = []
