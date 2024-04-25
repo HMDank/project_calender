@@ -6,7 +6,7 @@ import pandas as pd
 import streamlit_authenticator as stauth
 from st_pages import show_pages_from_config, hide_pages
 from plot import merge_overlapping_periods, create_calender_plot, datetime_to_str, str_to_datetime
-from database import update_user, retrieve_user_data
+from database import update_user, retrieve_user_data, add_tasks
 st.set_page_config(layout="wide",
                    page_title='Calendar',)
 hide_pages(["Login"])
@@ -32,6 +32,7 @@ if st.session_state["authentication_status"]:
         with st.sidebar:
             names = []
             for user_data in users_data:
+                names.append(user_data[0]['name'])
                 if st.session_state['name'] == user_data[0]['name']:
                     original_status = user_data[0]['status']
                     original_busy_timeframe = str_to_datetime(user_data[0]['schedule'])
@@ -87,9 +88,9 @@ if st.session_state["authentication_status"]:
                 with col2a:
                     pop = st.form_submit_button(label="Pop", use_container_width=True)
             if add and name and participants and deadline:
-                st.session_state['new_task'].append({'task': name,
+                st.session_state['new_task'].append({'name': name,
                                                      'progress': 0,
-                                                     'deadline': deadline,
+                                                     'deadline': datetime_to_str(deadline),
                                                      'participants': participants,
                                                      'completed': False})
             if st.session_state['new_task'] and pop:
@@ -97,7 +98,7 @@ if st.session_state["authentication_status"]:
             if st.session_state['new_task']:
                 st.write("Task(s) created:")
                 for i, task in enumerate(st.session_state['new_task']):
-                    st.write(f"Task: `{task['task']}`")
+                    st.write(f"Task: `{task['name']}`")
                     st.write(f"Participants: `{task['participants']}`")
                     st.write(f"Deadline: `{task['deadline']}`")
         with col2:
@@ -131,7 +132,7 @@ if st.session_state["authentication_status"]:
                 st.session_state['change_task'].pop()
             if st.session_state['change_task']:
                 for i, task in enumerate(st.session_state['change_task']):
-                    st.write(f"Task: `{task['task']}`")
+                    st.write(f"Task: `{task['name']}`")
                     st.write(f"Progress: `{task['progress']}`")
                     st.write(f"Participants: `{task['participants']}`")
                     st.write(f"Deadline: `{task['deadline']}`")
@@ -149,6 +150,7 @@ if st.session_state["authentication_status"]:
                 converted_sublist.append(datetime_to_str(item))
             converted_busy_timeframe.append(converted_sublist)
         update_user(st.session_state['name'], status, converted_busy_timeframe)
+        add_tasks(st.session_state['new_task'])
         st.session_state['busy_timeframe'] = []
         st.session_state['new_task'] = []
         st.session_state['change_task'] = []

@@ -6,7 +6,7 @@ from datetime import datetime, date
 import pymongo
 import yaml
 from yaml.loader import SafeLoader
-from database import retrieve_user_data, update_user
+from database import retrieve_user_data, update_user, retrieve_tasks
 st.set_page_config(layout="wide",
                    page_title='Calendar',)
 hide_pages(["Back"])
@@ -28,18 +28,17 @@ with st.sidebar:
             st.metric('d', f"{user_data[0]['name'].capitalize()}", label_visibility="collapsed", delta=f"{user_data[0]['status']}", delta_color='inverse')
 
 st.header('Ongoing Tasks', anchor=False)
-with open('tasks.yaml') as file:
-    ongoing_tasks = yaml.load(file, Loader=SafeLoader)
+ongoing_tasks = retrieve_tasks()
 tasks = []
 progress = []
 deadlines = []
 participants = []
 if ongoing_tasks:
-    for entry in ongoing_tasks:
-        tasks.append(entry['task'])
-        progress.append(entry['progress'])
-        deadlines.append(datetime.strptime(str(entry['deadline']), '%Y-%m-%d'))
-        participants.append(entry['participants'])
+    for task in ongoing_tasks:
+        tasks.append(task['name'])
+        progress.append(task['progress'])
+        deadlines.append(datetime.strptime(str(task['deadline']), '%Y-%m-%d'))
+        participants.append(task['participants'])
 
 df = pd.DataFrame(
     {
@@ -87,9 +86,6 @@ if new_data is not None:
             "completed": row['completed']
         }
         updated_tasks.append(task_dict)
-with open('tasks.yaml', 'w') as task_file:
-    yaml.dump(updated_tasks, task_file, default_flow_style=False)
-
 
 st.header('Group Schedule', anchor=False)
 st.dataframe(create_dataframe(users_data))
