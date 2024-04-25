@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from plot import create_calender_plot
+from plot import create_calender_plot, create_dataframe
 from st_pages import show_pages_from_config, hide_pages
 from datetime import datetime, date
 import pymongo
@@ -16,7 +16,7 @@ with open('config.yaml') as file:
     config = yaml.load(file, Loader=SafeLoader)
 
 users_data = retrieve_user_data([user_info["name"] for user_info in config['credentials']['usernames'].values()])
-
+st.write(users_data)
 with st.sidebar:
     st.subheader('Group Status', anchor=False)
     for user_data in users_data:
@@ -92,3 +92,4 @@ with open('tasks.yaml', 'w') as task_file:
 
 
 st.header('Group Schedule', anchor=False)
+st.dataframe(create_dataframe(users_data))

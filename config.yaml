@@ -12,16 +12,16 @@ credentials:
     hint:
       failed_login_attempts: 0
       logged_in: true
-      name: Hint
+      name: Hien
       password: $2b$12$vIYvzB6v238XaaHeCpdXHOcs78DClFwIzqRUSZhh5xpLqCXSxOcWK
     lam:
       failed_login_attempts: 0
       logged_in: true
-      name: Lam
+      name: Nam
       password: $2b$12$dk2Kv2zET0RG.1SVwas79eDGLGeNdoS1sMVjS34GMK5j/rOkOWQsO
     moi:
       failed_login_attempts: 0
       logged_in: false
-      name: Moi
+      name: V.Dang
       password: $2b$12$FQz7MacnDmZZBjJACFQ0yeHygCmxz.8f.qM22d1atODDC2qgk03c2
 pre-authorized: null

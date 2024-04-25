@@ -59,6 +59,19 @@ def update_user(user, status, schedule):
     client.close()
 
 
-# st.write(retrieve_user_data('Dank'))
-# if st.button('update'):
-#     update_user('Dank', 'Busy', [["2024-01-01", '2024-01-02']])
+def add_user(user, status, schedule):
+    client = pymongo.MongoClient(st.secrets['mongo']['uri'])
+    db = client['Schedule']
+    collection = db[user]
+    collection.insert_one(
+        {
+            'name': user,
+            'status': status,
+            'schedule': schedule
+            }
+        )
+    client.close()
+
+
+if st.button('update'):
+    add_user('V.Dang', 'Active', [[]])

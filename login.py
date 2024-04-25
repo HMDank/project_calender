@@ -5,7 +5,7 @@ from yaml.loader import SafeLoader
 import pandas as pd
 import streamlit_authenticator as stauth
 from st_pages import show_pages_from_config, hide_pages
-from plot import merge_overlapping_periods, create_calender_plot, datetime_to_str
+from plot import merge_overlapping_periods, create_calender_plot, datetime_to_str, str_to_datetime
 from database import update_user, retrieve_user_data
 st.set_page_config(layout="wide",
                    page_title='Calendar',)
@@ -34,13 +34,14 @@ if st.session_state["authentication_status"]:
             for user_data in users_data:
                 if st.session_state['name'] == user_data[0]['name']:
                     original_status = user_data[0]['status']
+                    original_busy_timeframe = str_to_datetime(user_data[0]['schedule'])
                     if user_data[0]['status'] == 'Free':
                         st.metric('d', f"{user_data[0]['name'].capitalize()}", label_visibility="collapsed", delta=f"{user_data[0]['status']}", delta_color='off')
                     elif user_data[0]['status'] == 'Active':
                         st.metric('d', f"{user_data[0]['name'].capitalize()}", label_visibility="collapsed", delta=f"{user_data[0]['status']}", delta_color='normal')
                     else:
                         st.metric('d', f"{user_data[0]['name'].capitalize()}", label_visibility="collapsed", delta=f"{user_data[0]['status']}", delta_color='inverse')
-            status = st.selectbox('Status:', ['Active', 'Busy'], index=None, placeholder='Update Status', label_visibility='collapsed')
+            status = st.selectbox('Status:', ['Active', 'Free', 'Busy'], index=None, placeholder='Update Status', label_visibility='collapsed')
             save_changes = st.button('Save Changes', type='primary')
             authenticator.logout()
         col1, col2 = st.columns(2)
@@ -49,20 +50,17 @@ if st.session_state["authentication_status"]:
             with st.form('busy_days'):
                 if 'busy_timeframe' not in st.session_state:
                     st.session_state['busy_timeframe'] = []
-                col1a, col1b = st.columns(2)
+                range = st.date_input('Pick a busy range', (date.today(), date.today()), min_value=date.today(), max_value=date(2024, 12, 31))
+                col1a, col1b, col1c = st.columns(3)
                 with col1a:
-                    start = st.date_input('Pick a starting date', min_value=date.today(), max_value=date(2024, 12, 31))
-                    end = st.date_input('Pick an ending date', min_value=date.today(), max_value=date(2024, 12, 31))
+                    add = st.form_submit_button(label="Add", use_container_width=True)
                 with col1b:
-                    add = st.form_submit_button(label="Add")
-                    pop = st.form_submit_button(label="Pop")
-                    clear = st.form_submit_button(label="Clear")
-                if start and end and add:
-                    if start > end:
-                        st.error('Ending date is sooner than Starting Date')
-                    else:
-                        st.session_state['busy_timeframe'].append((start, end))
-                        st.session_state['busy_timeframe'] = merge_overlapping_periods(st.session_state['busy_timeframe'])
+                    pop = st.form_submit_button(label="Pop", use_container_width=True)
+                with col1c:
+                    clear = st.form_submit_button(label="Clear", use_container_width=True)
+                if range and add:
+                    st.session_state['busy_timeframe'].append(range)
+                    st.session_state['busy_timeframe'] = merge_overlapping_periods(st.session_state['busy_timeframe'])
                 if st.session_state['busy_timeframe'] and pop:
                     st.session_state['busy_timeframe'].pop()
                 if clear:
@@ -72,7 +70,7 @@ if st.session_state["authentication_status"]:
                     st.write("Recorded busy timeframes:")
                     for i, (start_date, end_date) in enumerate(st.session_state['busy_timeframe']):
                         st.write(f"`{start_date} - {end_date}`")
-        st.plotly_chart(create_calender_plot(), use_container_width=True)
+        st.plotly_chart(create_calender_plot(merge_overlapping_periods(original_busy_timeframe + st.session_state['busy_timeframe'])), use_container_width=True)
     with tab2:
         if 'new_task' not in st.session_state:
             st.session_state['new_task'] = []
@@ -145,7 +143,7 @@ if st.session_state["authentication_status"]:
         if not status:
             status = original_status
         converted_busy_timeframe = []
-        for sublist in st.session_state['busy_timeframe']:
+        for sublist in merge_overlapping_periods(original_busy_timeframe + st.session_state['busy_timeframe']):
             converted_sublist = []
             for item in sublist:
                 converted_sublist.append(datetime_to_str(item))
