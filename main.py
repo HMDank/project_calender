@@ -35,10 +35,10 @@ deadlines = []
 participants = []
 if ongoing_tasks:
     for task in ongoing_tasks:
-        tasks.append(task['name'])
-        progress.append(task['progress'])
-        deadlines.append(datetime.strptime(str(task['deadline']), '%Y-%m-%d'))
-        participants.append(task['participants'])
+        tasks.append(task[0]['name'])
+        progress.append(task[0]['progress'])
+        deadlines.append(datetime.strptime(str(task[0]['deadline']), '%Y-%m-%d'))
+        participants.append(task[0]['participants'])
 
 df = pd.DataFrame(
     {

@@ -80,7 +80,6 @@ def add_tasks(task_list):
     client = pymongo.MongoClient(st.secrets['mongo']['uri'])
     db = client['Tasks']
     for task in task_list:
-        st.write(task)
         db.create_collection(task['name'])
         collection = db[task['name']]
         collection.insert_one(
