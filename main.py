@@ -1,58 +1,79 @@
 import streamlit as st
 import pandas as pd
-import streamlit_authenticator as stauth
-from plot import create_calender_plot
+from plot import create_calender_plot, create_dataframe, datetime_to_str
 from st_pages import show_pages_from_config, hide_pages
-from datetime import datetime
+from datetime import datetime, date, timedelta
+import pymongo
 import yaml
 from yaml.loader import SafeLoader
+from database import retrieve_user_data, update_user, retrieve_tasks, remove_task
 st.set_page_config(layout="wide",
                    page_title='Calendar',)
 hide_pages(["Back"])
 show_pages_from_config()
 
 
+def mask_df(df, date_range):
+    df.columns = pd.to_datetime(df.columns)
+    start_date = date_range[0]
+    end_date = date_range[1] if len(date_range) > 1 else date_range[0] + timedelta(days=10)
+    mask = (df.columns >= pd.Timestamp(start_date)) & (df.columns <= pd.Timestamp(end_date))
+    masked_df = df.loc[:, mask]
+    masked_df.columns = [col.date() for col in masked_df.columns]
+
+    def color_background(val):
+        if val == 'Busy':
+            return f'background-color: #e38686; font-weight: bold;'
+        if val == "Active":
+            return f'background-color: #9ee096; font-weight: bold;'
+
+    styled_df = masked_df.style.map(color_background)
+    return styled_df
+
+
 with open('config.yaml') as file:
     config = yaml.load(file, Loader=SafeLoader)
 
+users_data = retrieve_user_data([user_info["name"] for user_info in config['credentials']['usernames'].values()])
+# st.write(users_data)
 with st.sidebar:
     st.subheader('Group Status', anchor=False)
-    for username, info in config['credentials']['usernames'].items():
-        if info['status'] == 'Free':
-            st.metric('d', f"{info['name']}", label_visibility="collapsed", delta=f'{info["status"]}', delta_color='off')
-        elif info['status'] == 'Active':
-            st.metric('d', f"{info['name']}", label_visibility="collapsed", delta=f'{info["status"]}', delta_color='normal')
+    for user_data in users_data:
+        if user_data[0]['status'] == 'Free':
+            st.metric('d', f"{user_data[0]['name'].capitalize()}", label_visibility="collapsed", delta=f"{user_data[0]['status']}", delta_color='off')
+        elif user_data[0]['status'] == 'Active':
+            st.metric('d', f"{user_data[0]['name'].capitalize()}", label_visibility="collapsed", delta=f"{user_data[0]['status']}", delta_color='normal')
         else:
-            st.metric('d', f"{info['name']}", label_visibility="collapsed", delta=f'{info["status"]}', delta_color='inverse')
+            st.metric('d', f"{user_data[0]['name'].capitalize()}", label_visibility="collapsed", delta=f"{user_data[0]['status']}", delta_color='inverse')
 
 st.header('Ongoing Tasks', anchor=False)
-with open('tasks.yaml') as file:
-    ongoing_tasks = yaml.load(file, Loader=SafeLoader)
-tasks = []
+ongoing_tasks = retrieve_tasks()
+names = []
 progress = []
 deadlines = []
 participants = []
 if ongoing_tasks:
-    for entry in ongoing_tasks:
-        tasks.append(entry['task'])
-        progress.append(entry['progress'])
-        deadlines.append(datetime.strptime(str(entry['deadline']), '%Y-%m-%d'))
-        participants.append(entry['participants'])
+    for task in ongoing_tasks:
+        if task:
+            names.append(task[0]['name'])
+            progress.append(task[0]['progress'])
+            deadlines.append(datetime.strptime(str(task[0]['deadline']), '%Y-%m-%d'))
+            participants.append(task[0]['participants'])
 
 df = pd.DataFrame(
     {
-        "task": tasks,
+        "name": names,
         "progress": progress,
         "deadline": deadlines,
         "participants": participants,
-        'completed': [False for _ in range(len(tasks))],
+        'completed': [False for _ in range(len(names))],
     }
 )
 if df is not None:
     data = st.data_editor(
         df,
         column_config={
-            "task": "Task",
+            "name": "Name",
             "progress": st.column_config.ProgressColumn(
                 "Progress (%)",
                 min_value=0,
@@ -73,22 +94,13 @@ if df is not None:
         hide_index=True,
     )
 
-new_data = data[data['completed'] == False]
-if new_data is not None:
-    updated_tasks = []
-    for index, row in new_data.iterrows():
-        task_dict = {
-            "task": row['task'],
-            "progress": row['progress'],
-            "deadline": row['deadline'].strftime('%Y-%m-%d'),  # Convert datetime back to string format
-            "participants": row['participants'],
-            "completed": row['completed']
-        }
-        updated_tasks.append(task_dict)
-with open('tasks.yaml', 'w') as task_file:
-    yaml.dump(updated_tasks, task_file, default_flow_style=False)
-
+deleted_data = data[data['completed'] == True]
+if deleted_data is not None:
+    remove_task(deleted_data['name'].tolist())
 
 st.header('Group Schedule', anchor=False)
-plot = create_calender_plot()
-st.plotly_chart(plot, use_container_width=True)
+column1, column2, column3 = st.columns(3)
+with column1:
+    date_range = st.date_input('Pick a range', (date.today(), date.today() + timedelta(days=10)), min_value=date.today(), max_value=date(2024, 12, 31), label_visibility='collapsed')
+schedule_df = create_dataframe(users_data)
+st.dataframe(mask_df(schedule_df, date_range))
