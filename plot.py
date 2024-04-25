@@ -123,5 +123,13 @@ def create_dataframe(users_data):
 
     df = pd.concat(user_rows, ignore_index=True)
     df.set_index('Name', inplace=True)
+    
+    def color_background(val):
+        if val == 'Busy':
+            return f'background-color: #e38686; font-weight: bold;'
+        if val == "Active":
+            return f'background-color: #9ee096; font-weight: bold;'
+                
+    styled_df = df.style.applymap(color_background)
     return df
 
