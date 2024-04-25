@@ -72,12 +72,7 @@ def create_schedule_table(list):
     return df
 
 
-def convert_date_to_string(data):
-    def datetime_to_str(dt):
+def datetime_to_str(dt):
+    if isinstance(dt, date):
         return dt.isoformat()
-    if isinstance(data, date):
-        return datetime_to_str(data)
-    elif isinstance(data, list):
-        return [convert_date_to_string(item) for item in data]
-    else:
-        return data
+    return dt

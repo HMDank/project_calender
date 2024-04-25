@@ -5,7 +5,7 @@ from yaml.loader import SafeLoader
 import pandas as pd
 import streamlit_authenticator as stauth
 from st_pages import show_pages_from_config, hide_pages
-from plot import merge_overlapping_periods, create_calender_plot, convert_date_to_string
+from plot import merge_overlapping_periods, create_calender_plot, datetime_to_str
 from database import update_user, retrieve_user_data
 st.set_page_config(layout="wide",
                    page_title='Calendar',)
@@ -33,13 +33,14 @@ if st.session_state["authentication_status"]:
             names = []
             for user_data in users_data:
                 if st.session_state['name'] == user_data[0]['name']:
+                    original_status = user_data[0]['status']
                     if user_data[0]['status'] == 'Free':
                         st.metric('d', f"{user_data[0]['name'].capitalize()}", label_visibility="collapsed", delta=f"{user_data[0]['status']}", delta_color='off')
                     elif user_data[0]['status'] == 'Active':
                         st.metric('d', f"{user_data[0]['name'].capitalize()}", label_visibility="collapsed", delta=f"{user_data[0]['status']}", delta_color='normal')
                     else:
                         st.metric('d', f"{user_data[0]['name'].capitalize()}", label_visibility="collapsed", delta=f"{user_data[0]['status']}", delta_color='inverse')
-            status = st.selectbox('Status:', ['Active', 'Free', 'Busy'], index=None, placeholder='Update Status', label_visibility='collapsed')
+            status = st.selectbox('Status:', ['Active', 'Busy'], index=None, placeholder='Update Status', label_visibility='collapsed')
             save_changes = st.button('Save Changes', type='primary')
             authenticator.logout()
         col1, col2 = st.columns(2)
@@ -61,12 +62,12 @@ if st.session_state["authentication_status"]:
                         st.error('Ending date is sooner than Starting Date')
                     else:
                         st.session_state['busy_timeframe'].append((start, end))
+                        st.session_state['busy_timeframe'] = merge_overlapping_periods(st.session_state['busy_timeframe'])
                 if st.session_state['busy_timeframe'] and pop:
                     st.session_state['busy_timeframe'].pop()
                 if clear:
                     st.session_state['busy_timeframe'] = []
             if st.session_state['busy_timeframe']:
-                st.session_state['busy_timeframe'] = merge_overlapping_periods(st.session_state['busy_timeframe'])
                 with col2:
                     st.write("Recorded busy timeframes:")
                     for i, (start_date, end_date) in enumerate(st.session_state['busy_timeframe']):
@@ -136,10 +137,20 @@ if st.session_state["authentication_status"]:
                     st.write(f"Progress: `{task['progress']}`")
                     st.write(f"Participants: `{task['participants']}`")
                     st.write(f"Deadline: `{task['deadline']}`")
+    if not status:
+        status = original_status
     if save_changes:
         with open('config.yaml', 'w') as file:
             yaml.dump(config, file)
-        update_user(st.session_state['name'], status, st.session_state['busy_timeframe'])
+        if not status:
+            status = original_status
+        converted_busy_timeframe = []
+        for sublist in st.session_state['busy_timeframe']:
+            converted_sublist = []
+            for item in sublist:
+                converted_sublist.append(datetime_to_str(item))
+            converted_busy_timeframe.append(converted_sublist)
+        update_user(st.session_state['name'], status, converted_busy_timeframe)
         st.session_state['busy_timeframe'] = []
         st.session_state['new_task'] = []
         st.session_state['change_task'] = []
