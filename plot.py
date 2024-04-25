@@ -108,16 +108,16 @@ def create_dataframe(users_data):
 
         for day in date_range:
             user_row[day.strftime('%Y-%m-%d')] = 'Free'
-
         for busy_range in schedule:
-            start_date_str = busy_range[0]
-            end_date_str = busy_range[1]
-            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-            current_date = start_date
-            while current_date <= end_date:
-                user_row[current_date.strftime('%Y-%m-%d')] = 'Busy'
-                current_date += timedelta(days=1)
+            if busy_range:
+                start_date_str = busy_range[0]
+                end_date_str = busy_range[1]
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+                current_date = start_date
+                while current_date <= end_date:
+                    user_row[current_date.strftime('%Y-%m-%d')] = 'Busy'
+                    current_date += timedelta(days=1)
         user_rows.append(pd.DataFrame([user_row]))
 
     df = pd.concat(user_rows, ignore_index=True)

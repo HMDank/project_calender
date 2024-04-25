@@ -73,5 +73,5 @@ def add_user(user, status, schedule):
     client.close()
 
 
-if st.button('update'):
-    add_user('V.Dang', 'Active', [[]])
+# if st.button('update'):
+#     add_user('V.Dang', 'Active', [[]])
