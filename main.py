@@ -6,7 +6,7 @@ from datetime import datetime, date
 import pymongo
 import yaml
 from yaml.loader import SafeLoader
-from database import retrieve_user_data, update_user, retrieve_tasks
+from database import retrieve_user_data, update_user, retrieve_tasks, remove_task
 st.set_page_config(layout="wide",
                    page_title='Calendar',)
 hide_pages(["Back"])
@@ -29,31 +29,32 @@ with st.sidebar:
 
 st.header('Ongoing Tasks', anchor=False)
 ongoing_tasks = retrieve_tasks()
-tasks = []
+names = []
 progress = []
 deadlines = []
 participants = []
 if ongoing_tasks:
     for task in ongoing_tasks:
-        tasks.append(task[0]['name'])
-        progress.append(task[0]['progress'])
-        deadlines.append(datetime.strptime(str(task[0]['deadline']), '%Y-%m-%d'))
-        participants.append(task[0]['participants'])
+        if task:
+            names.append(task[0]['name'])
+            progress.append(task[0]['progress'])
+            deadlines.append(datetime.strptime(str(task[0]['deadline']), '%Y-%m-%d'))
+            participants.append(task[0]['participants'])
 
 df = pd.DataFrame(
     {
-        "task": tasks,
+        "name": names,
         "progress": progress,
         "deadline": deadlines,
         "participants": participants,
-        'completed': [False for _ in range(len(tasks))],
+        'completed': [False for _ in range(len(names))],
     }
 )
 if df is not None:
     data = st.data_editor(
         df,
         column_config={
-            "task": "Task",
+            "name": "Name",
             "progress": st.column_config.ProgressColumn(
                 "Progress (%)",
                 min_value=0,
@@ -74,18 +75,9 @@ if df is not None:
         hide_index=True,
     )
 
-new_data = data[data['completed'] == False]
-if new_data is not None:
-    updated_tasks = []
-    for index, row in new_data.iterrows():
-        task_dict = {
-            "task": row['task'],
-            "progress": row['progress'],
-            "deadline": row['deadline'].strftime('%Y-%m-%d'),  # Convert datetime back to string format
-            "participants": row['participants'],
-            "completed": row['completed']
-        }
-        updated_tasks.append(task_dict)
+deleted_data = data[data['completed'] == True]
+if deleted_data is not None:
+    remove_task(deleted_data['name'].tolist())
 
 st.header('Group Schedule', anchor=False)
 st.dataframe(create_dataframe(users_data))

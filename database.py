@@ -93,5 +93,12 @@ def add_tasks(task_list):
             )
     client.close()
 
+
+def remove_task(collection_name_list):
+    client = pymongo.MongoClient(st.secrets['mongo']['uri'])
+    db = client['Tasks']
+    for collection_name in collection_name_list:
+        db.drop_collection(collection_name)
+    client.close()
 # if st.button('update'):
 #     add_user('V.Dang', 'Active', [[]])
