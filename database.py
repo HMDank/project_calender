@@ -56,23 +56,26 @@ def retrieve_tasks():
         data = collection.find()
         final_list.append(list(data))
     client.close()
-    return final_list
+    return final_list[1:]
 
 
-def update_tasks(task_collection, completed_status, deadline, participants_list, progress, task_name):
+def update_tasks(task_list):
     client = pymongo.MongoClient(st.secrets['mongo']['uri'])
     db = client['Tasks']
-    collection = db[task_collection]
-    collection.replace_one(
-        {'name': task_name},
-        {
-          'name': task_name,
-          'completed': completed_status,
-          'participants': participants_list,
-          'progress': progress,
-          'deadline': deadline,
-        }
-    )
+    for task in task_list:
+        collection = db[task['name']]
+        json_data = collection.find()
+        name = list(json_data)[0]['name']
+        collection.replace_one(
+            {'name': name},
+            {
+                'name': task['name'],
+                'completed': task['completed'],
+                'participants': task['participants'],
+                'progress': task['progress'],
+                'deadline': task['deadline'],
+                }
+        )
     client.close()
 
 
